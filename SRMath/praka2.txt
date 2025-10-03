@@ -1,0 +1,86 @@
+def lfsr(taps, state, length, verbose=False):
+    output = []
+    for _ in range(length):
+        output.append(state[-1])           
+        new_bit = 0
+        for t in taps:
+            new_bit ^= state[-t]         
+        state = [new_bit] + state[:-1] 
+        if verbose:
+          print(state)
+    return output
+
+def find_period(taps, init_state):
+    state = init_state.copy()
+    initial = tuple(state)
+    count = 0
+    seen = set()
+    while True:
+        count += 1
+        new_bit = 0
+        for t in taps:
+            new_bit ^= state[-t]
+        state = [new_bit] + state[:-1]
+        stt = tuple(state)
+        if stt == initial:
+            return count
+        if stt in seen:
+            return count
+        seen.add(stt)
+
+print("Task 5")
+taps = [5, 2]                       
+init_state = [0, 1, 0, 0, 1]
+length = 31
+
+seq = lfsr(taps, init_state.copy(), length)
+print("Последовательность LFSR (длина 31):")
+print(seq)
+print(f"Количество единиц: {seq.count(1)}")
+print(f"Количество нулей: {seq.count(0)}")
+
+print("Task 6")
+taps = [4, 1]
+states = [
+    [1,0,0,0],
+    [0,1,0,0],
+    [1,1,1,1]
+]
+for s in states:
+    print(s, "-> период:", find_period(taps, s))
+
+print("Task 7")
+init = [1,0,0]
+polys = {
+    'x^3 + x + 1': [3,1],
+    'x^3 + x^2 + 1': [3,2]
+}
+for name, taps in polys.items():
+    print(name, "-> период:", find_period(taps, init))
+
+print("Task 8")
+import matplotlib.pyplot as plt
+
+taps = [6,1]
+init_state = [1,0,0,0,0,0]
+length = 63
+
+seq = lfsr(taps, init_state.copy(), length)
+counts = [seq.count(0), seq.count(1)]
+print("0:", counts[0], "1:", counts[1])
+
+plt.bar(['0','1'], counts)
+plt.title("Распределение бит в LFSR (x^6 + x + 1)")
+plt.show()
+
+print("Task 9")
+taps = [4,3]
+init_state = [1,1,0,0]
+length = 15
+
+print("Начальное состояние:", init_state)
+seq = lfsr(taps, init_state.copy(), length, verbose=True)
+print("Итоговая последовательность (длина 15):")
+print(seq)
+
+
